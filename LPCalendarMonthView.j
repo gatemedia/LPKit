@@ -74,7 +74,7 @@ var _startAndEndOfWeekCache = {};
 
     BOOL            highlightCurrentPeriod @accessors;
     BOOL            weekStartsOnMonday @accessors;
-    
+
     id              _delegate @accessors(property=delegate);
     LPCalendarView  calendarView @accessors;
     CPArray         hiddenRows @accessors;
@@ -118,10 +118,10 @@ var _startAndEndOfWeekCache = {};
     // No need to reloadData if the new date is the same as before.
     // ==
     // Future note: Do not use UTC comparison here,
-    // since we reset the date to the relative midnight later on. 
+    // since we reset the date to the relative midnight later on.
     if (date && date.getFullYear() === aDate.getFullYear() && date.getMonth() === aDate.getMonth())
         return;
-    
+
     date = [aDate copy];
 
     if (![aDate isEqualToDate:immutableDistantFuture])
@@ -137,7 +137,7 @@ var _startAndEndOfWeekCache = {};
         previousMonth = new Date(_firstDay.getTime() - 86400000);
         nextMonth = new Date(_firstDay.getTime() + (([date daysInMonth] + 1) * 86400000));
     }
-    
+
     [self reloadData];
 }
 
@@ -145,16 +145,16 @@ var _startAndEndOfWeekCache = {};
 {
     if (selectionLengthType === aSelectionType)
         return;
-    
+
     selectionLengthType = aSelectionType;
-    
+
     [self reloadData];
 }
 
 - (void)tileSize
 {
     var tileSize = [calendarView currentValueForThemeAttribute:@"tile-size"];
-    
+
     if (tileSize)
         return tileSize
     else
@@ -219,13 +219,13 @@ var _startAndEndOfWeekCache = {};
 {
     if ([hiddenRows isEqualToArray:hiddenRowsArray])
         return;
-    
+
     hiddenRows = hiddenRowsArray;
-    
+
     var tiles = [self subviews],
         tileIndex = 0,
         showAllRows = !hiddenRowsArray
-    
+
     for (var weekIndex = 0; weekIndex < 6; weekIndex++)
     {
         var shouldHideRow = showAllRows || [hiddenRows indexOfObject:weekIndex] > -1;
@@ -239,7 +239,7 @@ var _startAndEndOfWeekCache = {};
 }
 
 - (void)reloadData
-{   
+{
     if (!date)
         return;
 
@@ -574,7 +574,7 @@ var _startAndEndOfWeekCache = {};
 {
     if (date.getTime() === aDate.getTime())
         return;
-    
+
     // Update date
     date.setTime(aDate.getTime());
 
@@ -589,7 +589,7 @@ var _startAndEndOfWeekCache = {};
 - (void)layoutSubviews
 {
     var themeState = [self themeState];
-    
+
     [self setBackgroundColor:[calendarView valueForThemeAttribute:@"tile-bezel-color" inState:themeState]]
 
     [textField setFont:[calendarView valueForThemeAttribute:@"tile-font" inState:themeState]];

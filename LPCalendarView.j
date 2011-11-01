@@ -28,16 +28,16 @@
  *
  */
 @import <AppKit/CPControl.j>
-@import <LPKit/LPCalendarHeaderView.j>
-@import <LPKit/LPCalendarMonthView.j>
 @import <LPKit/LPSlideView.j>
+@import "LPCalendarHeaderView.j"
+@import "LPCalendarMonthView.j"
 
 
 @implementation LPCalendarView : CPView
 {
     LPCalendarHeaderView headerView @accessors(readonly);
     LPSlideView          slideView;
-    
+
     LPCalendarMonthView  currentMonthView;
     LPCalendarMonthView  firstMonthView;
     LPCalendarMonthView  secondMonthView;
@@ -56,11 +56,11 @@
 
 + (id)themeAttributes
 {
-    return [CPDictionary dictionaryWithObjects:[[CPNull null], [CPNull null], [CPNull null], [CPNull null], [CPNull null], [CPNull null], [CPNull null], [CPNull null], CGSizeMake(0,0), [CPNull null], [CPNull null], 40, [CPNull null], [CPNull null], [CPNull null], [CPNull null], [CPNull null], [CPNull null], 30, [CPNull null], [CPNull null], [CPNull null], [CPNull null]]
+    return [CPDictionary dictionaryWithObjects:[[CPNull null], [CPNull null], [CPNull null], [CPNull null], [CPNull null], [CPNull null], [CPNull null], [CPNull null], CGSizeMake(0,0), [CPNull null], [CPNull null], 40, [CPNull null], [CPNull null], [CPNull null], [CPNull null], [CPNull null], [CPNull null], 30, [CPNull null], [CPNull null], [CPNull null], [CPNull null], CGPointMakeZero()]
                                        forKeys:[@"background-color", @"grid-color",
                                                 @"tile-size", @"tile-font", @"tile-text-color", @"tile-text-shadow-color", @"tile-text-shadow-offset", @"tile-bezel-color",
                                                 @"header-button-offset", @"header-prev-button-image", @"header-next-button-image", @"header-height", @"header-background-color", @"header-font", @"header-text-color", @"header-text-shadow-color", @"header-text-shadow-offset", @"header-alignment",
-                                                @"header-weekday-offset", @"header-weekday-label-font", @"header-weekday-label-color", @"header-weekday-label-shadow-color", @"header-weekday-label-shadow-offset"]];
+                                                @"header-weekday-offset", @"header-weekday-label-font", @"header-weekday-label-color", @"header-weekday-label-shadow-color", @"header-weekday-label-shadow-offset", @"header-offset"]];
 
 }
 
@@ -72,7 +72,7 @@
 
         var bounds = [self bounds];
 
-        headerView = [[LPCalendarHeaderView alloc] initWithFrame:CGRectMake(0, 0, CGRectGetWidth(bounds), 40)];
+        headerView = [[LPCalendarHeaderView alloc] initWithFrame:CGRectMake(0, 5, CGRectGetWidth(bounds), 40)];
         [[headerView prevButton] setTarget:self];
         [[headerView prevButton] setAction:@selector(didClickPrevButton:)];
         [[headerView nextButton] setTarget:self];
@@ -96,6 +96,7 @@
         [slideView addSubview:secondMonthView];
 
         currentMonthView = firstMonthView;
+        [currentMonthView setNeedsLayout];
 
         // Default to today's date.
         [self setMonth:[CPDate date]];
@@ -150,7 +151,7 @@
 
     // new current view
     currentMonthView = slideToView;
-    
+
     // Display it way off,
     // because cappuccino wont draw
     // CGGraphics stuff unless it's visible
@@ -158,6 +159,7 @@
     [currentMonthView setFrameOrigin:CGPointMake(-500,-500)];
     [currentMonthView setHidden:NO];
     [currentMonthView setNeedsDisplay:YES];
+    [currentMonthView setNeedsLayout];
 
     [headerView setDate:aMonth];
 
@@ -195,11 +197,14 @@
 - (void)layoutSubviews
 {
     var width = CGRectGetWidth([self bounds]),
-        headerHeight = [self currentValueForThemeAttribute:@"header-height"];
-        
-    [headerView setFrameSize:CGSizeMake(width, headerHeight)];
-    [slideView setFrame:CGRectMake(0, headerHeight, width, CGRectGetHeight([self bounds]) - headerHeight)];
-    
+        headerHeight = [self currentValueForThemeAttribute:@"header-height"],
+        headerOffset = [self currentValueForThemeAttribute:@"header-offset"];
+
+    [headerView setFrame:CGRectMake(headerOffset.x, headerOffset.y, width, headerHeight)];
+    [slideView setFrame:CGRectMake(0, headerOffset.y + headerHeight, width + headerOffset.x, CGRectGetHeight([self bounds]) - headerHeight - headerOffset.y)];
+
+    [headerView setNeedsLayout];
+
     [slideView setBackgroundColor:[self currentValueForThemeAttribute:@"background-color"]];
 }
 
@@ -208,7 +213,7 @@
     // We can only slide one month in at a time.
     if ([slideView isSliding])
         return;
-    
+
     [self changeToMonth:[currentMonthView previousMonth]];
 }
 
@@ -217,7 +222,7 @@
     // We can only slide one month in at a time.
     if ([slideView isSliding])
         return;
-    
+
     [self changeToMonth:[currentMonthView nextMonth]];
 }
 
@@ -231,11 +236,11 @@
     // Make sure we have an end to the selection
     if ([aSelection count] <= 1)
         [aSelection addObject:nil];
-    
+
     // The selection didn't change
     if ([fullSelection isEqualToArray:aSelection])
         return;
-    
+
     // Copy the selection
     fullSelection = [CPArray arrayWithArray:aSelection];
 
@@ -245,4 +250,3 @@
 }
 
 @end
-
